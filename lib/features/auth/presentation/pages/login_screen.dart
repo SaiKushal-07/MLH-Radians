@@ -42,12 +42,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final ok = await ref
-        .read(authControllerProvider.notifier)
-        .login(_email.text, _password.text);
-    if (ok && mounted) {
-      // AuthGate listens to authStateChanges and will route automatically.
-    }
+    await ref.read(authControllerProvider.notifier).login(_email.text, _password.text);
   }
 
   @override
