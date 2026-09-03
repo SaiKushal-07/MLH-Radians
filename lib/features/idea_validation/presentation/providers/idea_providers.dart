@@ -7,10 +7,9 @@ import '../../domain/entities/analysis_result.dart';
 import '../../domain/repositories/idea_repository.dart';
 
 // Pass at build time: flutter run --dart-define=GEMINI_API_KEY=your_key_here
-const String kGeminiApiKey = String.fromEnvironment(
-  'GEMINI_API_KEY',
-  defaultValue: 'YOUR_GEMINI_API_KEY_HERE',
-);
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+String get kGeminiApiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
 
 final geminiServiceProvider = Provider<GeminiService>((ref) {
   return GeminiService(apiKey: kGeminiApiKey);
