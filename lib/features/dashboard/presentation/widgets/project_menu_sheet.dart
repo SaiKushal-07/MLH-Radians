@@ -1,83 +1,75 @@
 // lib/features/dashboard/presentation/widgets/project_menu_sheet.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:startupapp/core/constants/app_colors.dart';
-import 'package:startupapp/features/auth/presentation/providers/auth_providers.dart';
-import 'package:startupapp/features/projects/presentation/providers/project_providers.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../profile/presentation/pages/profile_screen.dart';
+import '../../../projects/presentation/pages/projects_screen.dart';
+import '../../../notepad/presentation/pages/notepad_screen.dart';
+import '../../../documents/presentation/pages/document_generator_screen.dart';
+import '../../../static_content/presentation/pages/roadmap_guide_screen.dart';
+import '../../../static_content/presentation/pages/instructions_screen.dart';
+import '../../../static_content/presentation/pages/privacy_policy_screen.dart';
+import '../../../static_content/presentation/pages/terms_screen.dart';
 
 class ProjectMenuSheet extends ConsumerWidget {
   const ProjectMenuSheet({super.key});
 
+  void _navigate(BuildContext context, Widget screen) {
+    Navigator.pop(context);
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authStateChangesProvider).valueOrNull;
-
-    Widget item(IconData icon, String label, VoidCallback onTap, {Color? color}) {
-      return ListTile(
-        leading: Icon(icon, color: color ?? Colors.white70),
-        title: Text(label, style: TextStyle(color: color ?? Colors.white, fontSize: 15)),
-        onTap: onTap,
-      );
-    }
-
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: const EdgeInsets.only(top: 12, bottom: 24),
-      child: SafeArea(
-        top: false,
+    return SafeArea(
+      child: Container(
+        decoration: const BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(4)),
+            _MenuTile(icon: Icons.person_outline, label: 'Profile', onTap: () => _navigate(context, const ProfileScreen())),
+            _MenuTile(icon: Icons.swap_horiz, label: 'Switch Project', onTap: () => _navigate(context, const ProjectsScreen())),
+            _MenuTile(icon: Icons.note_alt_outlined, label: 'Notepad', onTap: () => _navigate(context, const NotepadScreen())),
+            _MenuTile(icon: Icons.description_outlined, label: 'AI Document Generator', onTap: () => _navigate(context, const DocumentGeneratorScreen())),
+            _MenuTile(icon: Icons.map_outlined, label: 'Roadmap Guide', onTap: () => _navigate(context, const RoadmapGuideScreen())),
+            _MenuTile(icon: Icons.help_outline, label: 'Instructions', onTap: () => _navigate(context, const InstructionsScreen())),
+            _MenuTile(icon: Icons.privacy_tip_outlined, label: 'Privacy Policy', onTap: () => _navigate(context, const PrivacyPolicyScreen())),
+            _MenuTile(icon: Icons.gavel_outlined, label: 'Terms & Conditions', onTap: () => _navigate(context, const TermsScreen())),
+            const Divider(color: AppColors.divider, height: 24),
+            _MenuTile(
+              icon: Icons.logout,
+              label: 'Logout',
+              color: AppColors.danger,
+              onTap: () async {
+                Navigator.pop(context);
+                await ref.read(authRepositoryProvider).signOut();
+              },
             ),
-            if (user != null && !user.isAnonymous)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Text(
-                  user.email ?? '',
-                  style: const TextStyle(color: Colors.white38, fontSize: 12),
-                ),
-              ),
-            item(Icons.person_outline, 'Profile', () {
-              Navigator.pop(context);
-              // TODO Phase: profile screen
-            }),
-            item(Icons.swap_horiz_rounded, 'Switch Startup Project', () {
-              Navigator.pop(context);
-              ref.read(selectedProjectIdProvider.notifier).state = null;
-              Navigator.of(context).popUntil((r) => r.isFirst);
-            }),
-            item(Icons.map_outlined, 'Entrepreneur Roadmap Guide', () {
-              Navigator.pop(context);
-              // TODO Phase: static guide screen
-            }),
-            item(Icons.help_outline_rounded, 'Instructions', () {
-              Navigator.pop(context);
-              // TODO Phase: instructions screen
-            }),
-            item(Icons.privacy_tip_outlined, 'Privacy Policy', () {
-              Navigator.pop(context);
-              // TODO Phase: privacy policy screen
-            }),
-            item(Icons.description_outlined, 'Terms & Conditions', () {
-              Navigator.pop(context);
-              // TODO Phase: terms screen
-            }),
-            const Divider(color: Colors.white12, height: 20),
-            item(Icons.logout_rounded, 'Logout', () async {
-              Navigator.pop(context);
-              await ref.read(authRepositoryProvider).signOut();
-            }, color: Colors.redAccent),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _MenuTile extends StatelessWidget {
+  const _MenuTile({required this.icon, required this.label, required this.onTap, this.color});
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon, color: color ?? AppColors.textSecondary),
+      title: Text(label, style: TextStyle(color: color ?? AppColors.textPrimary)),
+      onTap: onTap,
     );
   }
 }
